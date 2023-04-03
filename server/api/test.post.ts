@@ -21,12 +21,19 @@ export default defineEventHandler(async (event) => {
                 files[name] = { buffer: Buffer.concat(_buf), fileInfo: info };
                 fields[name] = 'file';
             });
+            file.on('close', () => {
+                files[name] = { buffer: Buffer.concat(_buf), fileInfo: info };
+                fields[name] = 'file';
+            });
             file.on('error', (err) => reject(err));
         });
         bb.on('field', (name, val, info) => {
             fields[name] = val;
         });
         bb.on('close', () => {
+            resolve({ fields, files });
+        });
+        bb.on('finish', () => {
             resolve({ fields, files });
         });
         bb.on('error', (e) => {
